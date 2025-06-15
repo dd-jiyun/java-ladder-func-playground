@@ -2,7 +2,9 @@ package controller;
 
 import static constants.ReservedWord.FINISH_KEYWORD;
 
-import domain.dto.RequestLadderGame;
+import domain.dto.RequestHeight;
+import domain.dto.RequestPlayerNames;
+import domain.dto.RequestResults;
 import domain.dto.ResponseLadder;
 import domain.ladder.Height;
 import domain.ladder.Ladder;
@@ -24,10 +26,9 @@ public class LadderController {
     private static final String NOT_FOUND_PLAYER_RETRY_MESSAGE = "존재하지 않는 플레이어입니다. 다시 입력해주세요.";
 
     public void play() {
-        RequestLadderGame request = inputLadderSettings();
-        Players players = request.toPlayers();
-        Height height = request.toHeight();
-        Results results = request.toResults(players.size());
+        Players players = inputPlayers();
+        Results results = inputResults(players.size());
+        Height height = inputHeight();
 
         Ladder ladder = drawLadder(players, height);
         LadderResultBoard resultBoard = LadderResultBoard.of(players, ladder, results);
@@ -36,11 +37,19 @@ public class LadderController {
         showPlayerResult(resultBoard);
     }
 
-    private RequestLadderGame inputLadderSettings() {
-        String names = InputView.inputPlayerNames();
-        String results = InputView.inputRunningResult();
-        String height = InputView.inputLadderHeight();
-        return new RequestLadderGame(names, results, height);
+    private Players inputPlayers() {
+        String playerNames = InputView.inputPlayerNames();
+        return new RequestPlayerNames(playerNames).toPlayers();
+    }
+
+    private Results inputResults(final int playerCount) {
+        String resultInput = InputView.inputRunningResult();
+        return new RequestResults(resultInput).toResults(playerCount);
+    }
+
+    private Height inputHeight() {
+        String heightInput = InputView.inputLadderHeight();
+        return new RequestHeight(heightInput).toHeight();
     }
 
     private Ladder drawLadder(final Players players, final Height height) {
